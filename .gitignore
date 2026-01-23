@@ -1,0 +1,9 @@
+/api/node_modules
+/api/coverage
+/api/dist
+/api/.env
+
+/web/node_modules
+/web/coverage
+/web/dist
+/web/.env
