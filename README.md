@@ -74,11 +74,52 @@ npm run dev
 6.  **Win**:
     *   Once only **Bob** remains under 50 points, the **Winner Banner** appears!
 
-## 📂 Project Structure
+## 📂 Project Structure & Editing Guide
 
-*   `/api`: Express backend.
-    *   `src/models`: Database schemas (Game, User, Round).
-    *   `src/services`: Business logic (Winner checks, Point math).
-*   `/web`: React frontend.
-    *   `src/pages`: UI Screens (Home, AddUsers, Dashboard).
-    *   `src/api`: Axios client.
+Here is where to find code when you want to make changes:
+
+### 🖥️ Frontend (`/web`)
+*The User Interface (React + Vite)*
+
+*   **`src/pages/Home.jsx`**
+    *   📝 **Edit here to**: Change the "New Game" screen, default inputs, or the landing page text.
+*   **`src/pages/AddUsers.jsx`**
+    *   📝 **Edit here to**: Modify how players are added or change the limit enforcement messages.
+*   **`src/pages/GameDashboard.jsx`** ⚡ *(Most Important)*
+    *   📝 **Edit here to**: precise the Scoreboard, Round History cards, Winner Banner, or input forms.
+    *   *Logic*: Contains the visual logic for "Elimination" (greying out) and "Winner" (Crown icon).
+*   **`src/api/client.js`**
+    *   ⚙️ **Config**: Change the Backend URL here (currently `http://localhost:4000`).
+*   **`src/index.css`**
+    *   🎨 **Styles**: Global CSS variables for colors (glassmorphism), fonts, and animations.
+
+### ⚙️ Backend (`/api`)
+*The Logic & Database (Express + MongoDB)*
+
+*   **`src/services/game.service.js`** 🧠 *(The Brain)*
+    *   📝 **Edit here to**: Change the Game Rules.
+        *   Winner Detection Logic (Last Man Standing vs Sudden Death).
+        *   Point Calculation math.
+        *   Limit Validation.
+*   **`src/models/game.js`**
+    *   💾 **Database**: Defines what data is stored (e.g., `winner`, `total_points`).
+*   **`src/routes/game.routes.js`**
+    *   🔗 **API Endpoints**: Defines the URLs (e.g., `POST /create`, `GET /:gameId`).
+
+---
+
+## 🏛️ Architecture & Archive
+
+### Data Persistence
+*   **Database**: MongoDB.
+*   **Archive**: All games are **permanently archived** in the database.
+    *   Every round is stored in the `rounds` collection.
+    *   Every game result is stored in the `games` collection.
+    *   *Future Idea*: You can build a "History" page to view past matches by querying the `Game` collection.
+
+### Application Flow
+1.  **User Action** (Frontend) -> **API Request** (Axios)
+2.  **API Route** -> **Controller** -> **Service** (Business Logic)
+3.  **Service** -> **MongoDB** (Save Data)
+4.  **Response** -> **Frontend Updates** (React State)
+
