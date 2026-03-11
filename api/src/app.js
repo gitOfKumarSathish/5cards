@@ -11,6 +11,10 @@ app.use(morgan('dev'));
 
 app.use("/game", gameRoutes);
 
+app.get("/", (req, res) => {
+    res.send("🎲 5cards API is up and running on Vercel!");
+});
+
 app.get("/health", (req, res) => {
     res.json({ ok: true, message: `"5 cards API running and request received at ${new Date()}` });
 });
