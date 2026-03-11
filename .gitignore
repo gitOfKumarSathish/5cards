@@ -2,8 +2,10 @@
 /api/coverage
 /api/dist
 /api/.env
+/api/.vercel
 
 /web/node_modules
 /web/coverage
 /web/dist
 /web/.env
+/web/.vercel
