@@ -159,9 +159,9 @@ export default function GameDashboard() {
                         <ul style={{ textAlign: 'left', lineHeight: '1.6', color: '#cbd5e1', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
                             <li>🎯 <b>Objective:</b> Stay BELOW the target points. The first player to reach or exceed them is eliminated.</li>
                             <li>🏆 <b>Winner:</b> The last survivor wins! If everyone is out, the person with the lowest score wins.</li>
-                            <li>✨ <b>Win (0):</b> Getting 0 points in a round is a "Win".</li>
+                            <li>✨ <b>Win (0):</b> Getting exactly 0 points in a round is a "Win".</li>
                             <li>⚠️ <b>Wrong (50):</b> Making a "Wrong Show" costs exactly 50 points.</li>
-                            <li>🔄 <b>Pending:</b> Shows how many points you have left before elimination.</li>
+                            <li>🔄 <b>Pending:</b> Your points left before crossing the target.</li>
                         </ul>
                         <button className="btn-primary" style={{ width: '100%', marginTop: '2rem' }} onClick={() => setShowRules(false)}>Got it!</button>
                     </div>
@@ -228,7 +228,7 @@ export default function GameDashboard() {
                         How to Play?
                     </button>
                     <button 
-                        onClick={() => { if(window.confirm("Exit to home?")) window.location.href='/'; }}
+                        onClick={() => { if(window.confirm("Exit game to home? All progress will be lost!")) window.location.href='/'; }}
                         style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '2rem', background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}
                     >
                         Home
@@ -239,7 +239,7 @@ export default function GameDashboard() {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+            <div className="game-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
 
                 {/* Standings */}
                 <div>
@@ -324,6 +324,11 @@ export default function GameDashboard() {
                                                 style={{ width: '100px', flexShrink: 0 }}
                                                 value={roundInputs[user.user_id._id || user.user_id] !== undefined ? roundInputs[user.user_id._id || user.user_id] : ''}
                                                 onChange={(e) => handlePointChange(user.user_id._id || user.user_id, e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === '-' || e.key === '.' || e.key === 'e') {
+                                                        e.preventDefault();
+                                                    }
+                                                }}
                                                 disabled={isEliminated}
                                             />
                                         </div>

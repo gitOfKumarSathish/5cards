@@ -88,3 +88,28 @@ input:focus {
 .trophy-glow:hover {
   filter: drop-shadow(0 0 60px rgba(251, 191, 36, 0.8));
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .glass-card {
+    padding: 1.5rem !important;
+  }
+  
+  h1 {
+    font-size: 2.5rem !important;
+  }
+  
+  .game-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 1rem;
+  }
+  
+  .glass-card {
+    padding: 1rem !important;
+  }
+}

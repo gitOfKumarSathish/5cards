@@ -11,20 +11,37 @@ export default function Home() {
         totalPlayers: 2,
         totalPoints: 100
     });
+    const [errors, setErrors] = useState({});
+
+    const validate = (name, value) => {
+        let error = "";
+        const val = parseInt(value);
+        if (name === "totalPoints") {
+            if (isNaN(val) || val < 1) error = "Min 1 point required";
+            else if (val > 1000) error = "Max 1000 points allowed";
+        } else if (name === "totalPlayers") {
+            if (isNaN(val) || val < 2) error = "Min 2 players required";
+            else if (val > 10) error = "Max 10 players allowed";
+        }
+        setErrors(prev => ({ ...prev, [name]: error }));
+        return error === "";
+    };
+
+    const handleChange = (name, value) => {
+        setConfig(prev => ({ ...prev, [name]: value }));
+        validate(name, value);
+    };
 
     const createGame = async (e) => {
-        // Prevent default form submission if wrapped in form later
         if (e) e.preventDefault();
         
+        const isPointsValid = validate("totalPoints", config.totalPoints);
+        const isPlayersValid = validate("totalPlayers", config.totalPlayers);
+
+        if (!isPointsValid || !isPlayersValid) return;
+
         const players = parseInt(config.totalPlayers);
         const points = parseInt(config.totalPoints);
-
-        if (isNaN(points) || points < 1 || points > 1000) {
-            return alert("Total Points must be between 1 and 1000.");
-        }
-        if (isNaN(players) || players < 2 || players > 10) {
-            return alert("Number of players must be between 2 and 10.");
-        }
 
         setLoading(true);
         try {
@@ -68,8 +85,10 @@ export default function Home() {
                             max="1000"
                             required
                             value={config.totalPoints}
-                            onChange={(e) => setConfig({ ...config, totalPoints: e.target.value })}
+                            onChange={(e) => handleChange("totalPoints", e.target.value)}
+                            style={{ borderColor: errors.totalPoints ? '#ef4444' : 'var(--glass-border)' }}
                         />
+                        {errors.totalPoints && <div style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.totalPoints}</div>}
                         <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.5rem', fontStyle: 'italic' }}>
                             *The player who stays BELOW this target wins. The first to reach or exceed it loses.
                         </div>
@@ -83,12 +102,14 @@ export default function Home() {
                             max="10"
                             required
                             value={config.totalPlayers}
-                            onChange={(e) => setConfig({ ...config, totalPlayers: e.target.value })}
+                            onChange={(e) => handleChange("totalPlayers", e.target.value)}
+                            style={{ borderColor: errors.totalPlayers ? '#ef4444' : 'var(--glass-border)' }}
                         />
+                        {errors.totalPlayers && <div style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>{errors.totalPlayers}</div>}
                     </div>
                 </form>
 
-                <button className="btn-primary" onClick={createGame} disabled={loading} style={{ width: '100%' }}>
+                <button className="btn-primary" onClick={createGame} disabled={loading || errors.totalPoints || errors.totalPlayers} style={{ width: '100%' }}>
                     {loading ? 'Creating...' : 'Start New Game'}
                 </button>
             </div>
