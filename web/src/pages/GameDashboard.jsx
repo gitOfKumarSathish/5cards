@@ -81,8 +81,26 @@ export default function GameDashboard() {
         // user.user_id is now an object because we populated it!
         return user.user_id?.name || "Unknown";
     };
+    // Helper to get stats safely
+    const getUserStats = (user) => {
+        let winCount = 0;
+        let wrongShowCount = 0;
+        const userId = user.user_id._id || user.user_id;
 
-    const sortedUsers = [...(game.users || [])].sort((a, b) => b.points - a.points);
+        if (game && game.rounds) {
+            game.rounds.forEach(round => {
+                const userRoundData = round.userPoints.find(up => (up.user_id._id || up.user_id) === userId);
+                if (userRoundData) {
+                    if (userRoundData.pointsEarned === 0) winCount++;
+                    if (userRoundData.pointsEarned === 50) wrongShowCount++;
+                }
+            });
+        }
+
+        return { winCount, wrongShowCount };
+    };
+
+    const sortedUsers = [...(game.users || [])].sort((a, b) => a.points - b.points);
 
     return (
         <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative' }}>
@@ -138,12 +156,12 @@ export default function GameDashboard() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
 
-                {/* Leaderboard */}
+                {/* Standings */}
                 <div>
                     <div className="glass-card" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
                             <Trophy color="#fbbf24" size={24} style={{ marginRight: '0.5rem' }} />
-                            <h3>Leaderboard</h3>
+                            <h3>Standings</h3>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -167,6 +185,10 @@ export default function GameDashboard() {
                                     <div style={{ textAlign: 'right' }}>
                                         <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{user.points} pts</div>
                                         <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{user.pending_points} pending</div>
+                                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '4px', fontSize: '0.75rem' }}>
+                                            <span style={{ background: 'rgba(34, 197, 94, 0.2)', color: '#22c55e', padding: '2px 6px', borderRadius: '4px' }}>Win: {getUserStats(user).winCount}</span>
+                                            <span style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '2px 6px', borderRadius: '4px' }}>Wrong: {getUserStats(user).wrongShowCount}</span>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
