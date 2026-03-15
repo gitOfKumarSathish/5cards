@@ -12,12 +12,25 @@ export default function Home() {
         totalPoints: 100
     });
 
-    const createGame = async () => {
+    const createGame = async (e) => {
+        // Prevent default form submission if wrapped in form later
+        if (e) e.preventDefault();
+        
+        const players = parseInt(config.totalPlayers);
+        const points = parseInt(config.totalPoints);
+
+        if (isNaN(points) || points < 1 || points > 1000) {
+            return alert("Total Points must be between 1 and 1000.");
+        }
+        if (isNaN(players) || players < 2 || players > 10) {
+            return alert("Number of players must be between 2 and 10.");
+        }
+
         setLoading(true);
         try {
             const res = await client.post('/create', {
-                total_players: parseInt(config.totalPlayers),
-                total_points: parseInt(config.totalPoints)
+                total_players: players,
+                total_points: points
             });
             const gameId = res.data.game.game_id || res.data.game._id;
             navigate(`/setup/${gameId}`);
@@ -45,26 +58,35 @@ export default function Home() {
                     The premium scoring companion.
                 </p>
 
-                <div style={{ textAlign: 'left', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <form onSubmit={createGame} style={{ textAlign: 'left', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
                     <div>
                         <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#cbd5e1' }}>Total Points to Win/Lose</label>
                         <input
                             type="number"
+                            min="1"
+                            max="1000"
+                            required
                             value={config.totalPoints}
                             onChange={(e) => setConfig({ ...config, totalPoints: e.target.value })}
                         />
+                        <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.5rem', fontStyle: 'italic' }}>
+                            *The player who stays BELOW this target wins. The first to reach or exceed it loses.
+                        </div>
                     </div>
 
                     <div>
                         <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#cbd5e1' }}>Number of Players</label>
                         <input
                             type="number"
+                            min="2"
+                            max="10"
+                            required
                             value={config.totalPlayers}
                             onChange={(e) => setConfig({ ...config, totalPlayers: e.target.value })}
                         />
                     </div>
-                </div>
+                </form>
 
                 <button className="btn-primary" onClick={createGame} disabled={loading} style={{ width: '100%' }}>
                     {loading ? 'Creating...' : 'Start New Game'}

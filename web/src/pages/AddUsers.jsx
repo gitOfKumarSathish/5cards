@@ -25,10 +25,16 @@ export default function AddUsers() {
         if (names.length >= game.total_players) {
             return alert(`Max ${game.total_players} players allowed!`);
         }
-        if (currentName.trim()) {
-            setNames([...names, currentName.trim()]);
-            setCurrentName('');
+        const trimmedName = currentName.trim();
+        if (!trimmedName) {
+            return alert("Player name cannot be empty.");
         }
+        if (trimmedName.length > 25) {
+            return alert("Player name cannot exceed 25 characters.");
+        }
+        
+        setNames([...names, trimmedName]);
+        setCurrentName('');
     };
 
     const removeName = (index) => {
@@ -76,6 +82,9 @@ export default function AddUsers() {
                         placeholder={isFull ? "Player limit reached" : "Enter player name..."}
                         autoFocus
                         disabled={isFull}
+                        required
+                        minLength={1}
+                        maxLength={25}
                     />
                     <button type="submit" className="btn-primary" style={{ display: 'flex', alignItems: 'center' }} disabled={isFull}>
                         <Plus size={20} />
@@ -90,10 +99,18 @@ export default function AddUsers() {
                             borderRadius: '2rem',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.5rem'
+                            gap: '0.5rem',
+                            maxWidth: '100%'
                         }}>
-                            <span>{name}</span>
-                            <X size={14} style={{ cursor: 'pointer' }} onClick={() => removeName(i)} />
+                            <span style={{ 
+                                whiteSpace: 'nowrap', 
+                                overflow: 'hidden', 
+                                textOverflow: 'ellipsis',
+                                maxWidth: '150px'
+                            }} title={name}>
+                                {name}
+                            </span>
+                            <X size={14} style={{ cursor: 'pointer', flexShrink: 0 }} onClick={() => removeName(i)} />
                         </div>
                     ))}
                     {names.length === 0 && <span style={{ color: '#64748b' }}>No players added yet.</span>}

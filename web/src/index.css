@@ -71,3 +71,20 @@ input:focus {
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.trophy-glow {
+  filter: drop-shadow(0 0 30px rgba(251, 191, 36, 0.5));
+  transition: filter 0.3s ease;
+}
+
+.trophy-glow:hover {
+  filter: drop-shadow(0 0 60px rgba(251, 191, 36, 0.8));
+}

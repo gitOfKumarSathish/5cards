@@ -123,12 +123,59 @@ const addPointsToGameService = async (req, res, next) => {
                 wonAt: new Date()
             };
             await updatedGame.save();
+        } else if (activePlayers.length === 0 && updatedGame.users.length > 1) {
+            // All eliminated edge case - winner is lowest score
+            const winner = updatedGame.users.reduce((prev, curr) => prev.points < curr.points ? prev : curr);
+            updatedGame.winner = {
+                user_id: winner.user_id._id,
+                name: winner.user_id.name,
+                wonAt: new Date()
+            };
+            await updatedGame.save();
         }
 
         res.status(201).json({ message: "Round submitted successfully", round });
 
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+};
+
+const deleteLastRoundService = async (req, res, next) => {
+    try {
+        const { gameId } = req.params;
+        
+        // 1. Fetch game and the highest round
+        const game = await Game.findById(gameId);
+        if (!game) return res.status(404).json({ message: "Game not found" });
+
+        const lastRound = await Round.findOne({ game_id: gameId }).sort({ round_number: -1 });
+        if (!lastRound) return res.status(400).json({ message: "No rounds to delete" });
+
+        // 2. Revert game points for each user in the last round
+        await Promise.all(lastRound.userPoints.map(async ({ user_id, pointsEarned }) => {
+            await Game.updateOne(
+                { _id: gameId, "users.user_id": user_id },
+                {
+                    $inc: {
+                        "users.$.points": -pointsEarned,
+                        "users.$.pending_points": pointsEarned
+                    }
+                }
+            );
+        }));
+
+        // 3. Clear winner if the game had a winner and we are reverting a round
+        if (game.winner) {
+            await Game.updateOne({ _id: gameId }, { $unset: { winner: 1 } });
+        }
+
+        // 4. Delete the round document
+        await Round.findByIdAndDelete(lastRound._id);
+
+        res.status(200).json({ message: "Last round deleted successfully" });
+    } catch (err) {
+        next(err);
     }
 };
 
@@ -147,18 +194,15 @@ const getGameService = async (req, res, next) => {
             console.log("Winner Check - Total:", game.total_points, "Active:", activePlayers.length, "Users:", game.users.length);
 
             let winner = null;
-            if (activePlayers.length === 1 && game.users.length > 1) {
-                winner = activePlayers[0];
-            } else if (activePlayers.length === 0 && game.users.length > 1) {
-                // All eliminated - winner is lowest score
-                winner = game.users.reduce((prev, curr) => prev.points < curr.points ? prev : curr);
+            if (activePlayers.length <= 1 && game.users.length > 1) {
+                winner = activePlayers.length === 1 ? activePlayers[0] : game.users.reduce((prev, curr) => prev.points < curr.points ? prev : curr);
             }
 
             if (winner) {
                 console.log("Winner DETECTED:", winner.user_id);
                 game.winner = {
                     user_id: winner.user_id._id,
-                    name: winner.user_id.name,
+                    name: winner.user_id?.name || "Player",
                     wonAt: new Date()
                 };
                 await game.save();
@@ -180,5 +224,6 @@ export {
     createGameService,
     initializeUsersInGame,
     addPointsToGameService,
+    deleteLastRoundService,
     getGameService
 };

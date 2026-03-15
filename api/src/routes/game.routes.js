@@ -5,5 +5,6 @@ const router = Router();
 router.post("/create", GameController.createGame);
 router.post("/add-users/:gameId", GameController.initializeUsers);
 router.post("/submit-rounds/:gameId", GameController.addPointsToGame);
+router.delete("/round/:gameId/last", GameController.deleteLastRound);
 router.get("/:gameId", GameController.getGame);
 export default router;

@@ -1,10 +1,11 @@
-import { addPointsToGameService, createGameService, initializeUsersInGame, getGameService } from '../services/game.service.js';
+import { addPointsToGameService, createGameService, initializeUsersInGame, getGameService, deleteLastRoundService } from '../services/game.service.js';
 
 class GameController {
     constructor() {
         this.createGame = this.createGame.bind(this);
         this.initializeUsers = this.initializeUsers.bind(this);
         this.addPointsToGame = this.addPointsToGame.bind(this);
+        this.deleteLastRound = this.deleteLastRound.bind(this);
     }
 
     async createGame(req, res, next) {
@@ -17,6 +18,10 @@ class GameController {
 
     async addPointsToGame(req, res, next) {
         return addPointsToGameService(req, res, next);
+    }
+
+    async deleteLastRound(req, res, next) {
+        return deleteLastRoundService(req, res, next);
     }
 
     async getGame(req, res, next) {
